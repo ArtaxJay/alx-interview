@@ -19,11 +19,14 @@ def rotate_2d_matrix(matrix):
             # save topleft  value
             to_top_left = matrix[to_top][to_left + i]
             # move bottom left to top left
-            matrix[to_top][to_left + i] = matrix[to_bottom - i][to_left]
+            matrix[to_top][to_left + i] =
+                matrix[to_bottom - i][to_left]
             # move bottom right to bottom left
-            matrix[to_bottom - i][to_left] = matrix[to_bottom][to_right - i]
-            # move top right to bottom right
-            matrix[bottom][to_right - i] = matrix[top + i][to_right]
+            matrix[to_bottom - i][to_left] =
+                matrix[to_bottom][to_right - i]
+            # move bottom right to bottom left
+            matrix[to_bottom][to_right - i] =
+            matrix[to_top + i][to_right]
             # move top left to top right
             matrix[to_top + i][to_right] = to_top_left
         to_right -= 1
