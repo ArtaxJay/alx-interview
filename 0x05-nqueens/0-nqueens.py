@@ -1,81 +1,94 @@
 #!/usr/bin/python3
-"""
-N Queens Problem Solver
-"""
+'''Solve the N Queens problem using backtracking.'''
 
 import sys
 
-
-def is_safe(board, row, col, n):
-    """
-    Check if a queen can be safely placed at board[row][col].
-
-    Args:
-        board (list): Current board state.
-        row (int): Row index.
-        col (int): Column index.
-        n (int): Size of the board (NxN).
-
-    Returns:
-        bool: True if safe, False otherwise.
-    """
-    for i in range(row):
-        if board[i] == col or \
-           board[i] - i == col - row or \
-           board[i] + i == col + row:
-            return False
-    return True
-
-
-def solve_nqueens(n, row, board, solutions):
-    """
-    Solve the N Queens problem using backtracking.
-
-    Args:
-        n (int): Size of the board (NxN).
-        row (int): Current row index.
-        board (list): Current board state.
-        solutions (list): Collected solutions.
-
-    Returns:
-        None
-    """
-    if row == n:
-        solutions.append([[r, board[r]] for r in range(n)])
-        return
-
-    for col in range(n):
-        if is_safe(board, row, col, n):
-            board[row] = col
-            solve_nqueens(n, row + 1, board, solutions)
-            board[row] = -1  # Backtrack
-
-
-def main():
-    """
-    Main function to handle input and solve the N Queens problem.
-    """
+if __name__ == '__main__':
+    # Validate command-line arguments
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
 
     try:
-        n = int(sys.argv[1])
+        board_size = int(sys.argv[1])
     except ValueError:
         print("N must be a number")
         sys.exit(1)
 
-    if n < 4:
+    if board_size < 4:
         print("N must be at least 4")
         sys.exit(1)
 
     solutions = []
-    board = [-1] * n  # Initialize board with -1 (no queens placed)
-    solve_nqueens(n, 0, board, solutions)
+    # Coordinates of queens placed on the board, e.g., [row, column]
+    queens_positions = []
+    backtracking = False
+    row = 0
+    col = 0
 
-    for solution in solutions:
-        print(solution)
+    # Iterate through rows of the board
+    while row < board_size:
+        backtrack = False
+        # Iterate through columns in the current row
+        while col < board_size:
+            # Check if placing a queen in [row, col] is safe
+            is_safe = True
+            for queen in queens_positions:
+                queen_col = queen[1]
+                if (
+                    queen_col == col or  # Same column
+                    queen_col + (row - queen[0]) == col or  # Diagonal \
+                    queen_col - (row - queen[0]) == col  # Diagonal /
+                ):
+                    is_safe = False
+                    break
 
+            if not is_safe:
+                if col == board_size - 1:
+                    backtrack = True
+                    break
+                col += 1
+                continue
 
-if __name__ == "__main__":
-    main()
+            # Place the queen
+            queens_positions.append([row, col])
+
+            # If all queens are placed, store the solution and reset
+            if row == board_size - 1:
+                solutions.append(queens_positions[:])
+                for queen in queens_positions:
+                    if queen[1] < board_size - 1:
+                        row = queen[0]
+                        col = queen[1]
+                for _ in range(board_size - row):
+                    queens_positions.pop()
+                if row == board_size - 1 and col == board_size - 1:
+                    queens_positions = []
+                    backtracking = True
+                row -= 1
+                col += 1
+            else:
+                col = 0
+            break
+        if backtracking:
+            break
+        # Backtrack to the previous row and try the next column
+        if backtrack:
+            row -= 1
+            while row >= 0:
+                col = queens_positions[row][1] + 1
+                del queens_positions[row]  # Remove the queen from the board
+                if col < board_size:
+                    break
+                row -= 1
+            if row < 0:
+                break
+            continue
+        row += 1
+
+    # Print all solutions
+    for index, solution in enumerate(solutions):
+        if index == len(solutions) - 1:
+            print(solution, end="")
+        else:
+            print(solution)
