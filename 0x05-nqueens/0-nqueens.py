@@ -1,71 +1,60 @@
 #!/usr/bin/python3
 """
-N Queens Problem Solver using Backtracking
+N Queens Problem Solver
 """
 
 import sys
 
 
-def is_safe(row, col, queens):
+def is_safe(board, row, col, n):
     """
-    Check if a queen can be safely placed at the given row and column.
+    Check if a queen can be safely placed at board[row][col].
 
     Args:
-        row (int): The row to check.
-        col (int): The column to check.
-        queens(list): D list of already placed queen positions as [row, col]
+        board (list): Current board state.
+        row (int): Row index.
+        col (int): Column index.
+        n (int): Size of the board (NxN).
 
     Returns:
-        bool: True if the position is safe, False otherwise.
+        bool: True if safe, False otherwise.
     """
-    for queen_row, queen_col in queens:
-        if (
-            queen_col == col or
-            queen_col + (row - queen_row) == col or
-            queen_col - (row - queen_row) == col
-        ):
+    for i in range(row):
+        if board[i] == col or \
+           board[i] - i == col - row or \
+           board[i] + i == col + row:
             return False
     return True
 
 
-def solve_n_queens(n, row=0, queens=None, solutions=None):
+def solve_nqueens(n, row, board, solutions):
     """
-    Recursively solve the N Queens problem using backtracking.
+    Solve the N Queens problem using backtracking.
 
     Args:
-        n (int): Size of the chessboard and number of queens.
-        row (int): Current row being processed.
-        queens (list): Positions of already placed queens.
+        n (int): Size of the board (NxN).
+        row (int): Current row index.
+        board (list): Current board state.
         solutions (list): Collected solutions.
 
     Returns:
         None
     """
-    if queens is None:
-        queens = []
-    if solutions is None:
-        solutions = []
-
-    # Base case: all queens are placed
     if row == n:
-        solutions.append(queens[:])
+        solutions.append([[r, board[r]] for r in range(n)])
         return
 
-    # Try placing a queen in each column
     for col in range(n):
-        if is_safe(row, col, queens):
-            queens.append([row, col])
-            solve_n_queens(n, row + 1, queens, solutions)
-            queens.pop()  # Backtrack
-
-    return solutions
+        if is_safe(board, row, col, n):
+            board[row] = col
+            solve_nqueens(n, row + 1, board, solutions)
+            board[row] = -1  # Backtrack
 
 
 def main():
     """
-    Main function to handle input and output for the N Queens solver.
+    Main function to handle input and solve the N Queens problem.
     """
-    # Validate input
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
@@ -80,10 +69,10 @@ def main():
         print("N must be at least 4")
         sys.exit(1)
 
-    # Solve the N Queens problem
-    solutions = solve_n_queens(n)
+    solutions = []
+    board = [-1] * n  # Initialize board with -1 (no queens placed)
+    solve_nqueens(n, 0, board, solutions)
 
-    # Print all solutions
     for solution in solutions:
         print(solution)
 
